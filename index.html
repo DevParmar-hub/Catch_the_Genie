@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+g<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -24,7 +24,8 @@
 
         #game-container {
             position: relative;
-            width: 100%;
+            width: 95%;
+            height: 90%;
             aspect-ratio: 16 / 9;
             box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.3);
             border: 2px solid #ffd700;
@@ -410,22 +411,52 @@
 
         function drawBackground() {
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0a011a'); gradient.addColorStop(0.6, '#491a59'); gradient.addColorStop(1, '#d48a6A');
-            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0a011a');
+            gradient.addColorStop(0.6, '#491a59');
+            gradient.addColorStop(1, '#d48a6A');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // --- START OF CHANGES ---
+
+            ctx.save();
+            // Apply a very slow parallax scroll to the distant sky elements
+            ctx.translate(-backgroundOffsetX * 0.1, 0);
+
+            // Draw stars - they will now appear to move
             ctx.fillStyle = 'rgba(255, 255, 220, 0.6)';
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 150; i++) { // Increased star count for a denser field
                 ctx.beginPath();
-                ctx.arc((i * 37) % canvas.width, (i * 101) % canvas.height, Math.sin(i) * 0.5 + 1, 0, Math.PI * 2);
+                // Use a larger canvas area to draw stars so they don't pop in at the edges
+                ctx.arc((i * 57) % (canvas.width * 1.5), (i * 131) % canvas.height, Math.sin(i) * 0.5 + 1, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            const moonX = canvas.width * 0.85; const moonY = canvas.height * 0.2; const moonRadius = 50;
-            ctx.fillStyle = THEME.lightGold; ctx.beginPath(); ctx.arc(moonX, moonY, moonRadius, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#0a011a'; ctx.beginPath(); ctx.arc(moonX - moonRadius * 0.4, moonY - moonRadius * 0.2, moonRadius, 0, Math.PI * 2); ctx.fill();
+            // Draw moon - it will now appear to move
+            const moonX = canvas.width * 0.85;
+            const moonY = canvas.height * 0.2;
+            const moonRadius = 50;
+            ctx.fillStyle = THEME.lightGold;
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, moonRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0a011a';
+            ctx.beginPath();
+            ctx.arc(moonX - moonRadius * 0.4, moonY - moonRadius * 0.2, moonRadius, 0, Math.PI * 2);
+            ctx.fill();
             const glowGradient = ctx.createRadialGradient(moonX, moonY, moonRadius, moonX, moonY, moonRadius + 20);
-            glowGradient.addColorStop(0, 'rgba(240, 232, 216, 0.4)'); glowGradient.addColorStop(1, 'rgba(240, 232, 216, 0)');
-            ctx.fillStyle = glowGradient; ctx.beginPath(); ctx.arc(moonX, moonY, moonRadius + 20, 0, Math.PI * 2); ctx.fill();
+            glowGradient.addColorStop(0, 'rgba(240, 232, 216, 0.4)');
+            glowGradient.addColorStop(1, 'rgba(240, 232, 216, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, moonRadius + 20, 0, Math.PI * 2);
+            ctx.fill();
 
+            ctx.restore();
+
+            // --- END OF CHANGES ---
+
+            // Dunes are drawn last and are not affected by the translation above
             dunes.forEach(dune => drawDuneLayer(backgroundOffsetX * dune.parallaxFactor, dune.y, dune.color, dune.amplitude, dune.segmentWidth));
         }
 
